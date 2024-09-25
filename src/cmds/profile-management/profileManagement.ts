@@ -16,7 +16,7 @@ const createNewProfile = (opt: Record<string, string | boolean>) => {
 }
 
 const removeRegisteredProfile = (opt: Record<string, string | boolean>) => {
-  const profileName = opt?.add as string
+  const profileName = opt?.remove as string
   if (!profileName) {
     console.error("Profile name is required")
     return
