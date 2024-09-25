@@ -8,7 +8,8 @@
   },
   "scripts": {
     "start": "ts-node ./src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "reinstall": "pnpm build && npm uninstall -g zhc && npm install -g"
   },
   "keywords": [],
   "author": "Nanda Julianda Akbar <nanda.julianda48@gmail.com>",
