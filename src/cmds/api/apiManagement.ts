@@ -71,7 +71,7 @@ const configureRequest = (
   let requestInit: RequestInit = {}
   switch (method) {
     case "GET":
-      finalURL = params
+      finalURL = params && Object.keys(params).length > 0
         ? `${fullURL}?${new URLSearchParams(params).toString()}`
         : fullURL
       requestInit = {
