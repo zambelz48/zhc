@@ -50,6 +50,9 @@ export const createCommand = (
         .filter((opt) => opt === "h" || opt === "help").length > 0
 
       if (cmd.command !== "base" && hasHelpOpt) {
+        console.log("ZHC CLI")
+        console.log()
+        console.log(cmd.description)
         console.log(`Usage: zhc ${cmd.command} [options]`)
         console.log("Options:")
         for (const [key, value] of Object.entries(cmd.options)) {

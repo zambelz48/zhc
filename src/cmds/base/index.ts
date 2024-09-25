@@ -19,11 +19,11 @@ export default createCommand({
     "h:help": "Show help",
   }
 }, (opt) => {
-    if (opt.version) {
-      showVersion()
-    }
+  if (opt.version) {
+    showVersion()
+  }
 
-    if (opt.help) {
-      showHelp()
-    }
-  })
+  if (opt.help) {
+    showHelp()
+  }
+})

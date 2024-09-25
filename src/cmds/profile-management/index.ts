@@ -9,14 +9,14 @@ export default createCommand({
     "r:remove": "Remove profile"
   },
 }, (options) => {
-    if (options.add) {
-      createNewProfile(options)
-      return
-    }
+  if (options.add) {
+    createNewProfile(options)
+    return
+  }
 
-    if (options.remove) {
-      removeRegisteredProfile(options)
-      return
-    }
+  if (options.remove) {
+    removeRegisteredProfile(options)
+    return
+  }
 })
 
