@@ -10,19 +10,38 @@ const createProfile = (name: string): string | never => {
   }
 
   createDirectory({ path: profilePath, recursive: true })
+  createFile({
+    path: path.join(profilePath, "config.jsonc"),
+    content: JSON.stringify({
+      "defaultEnv": "default",
+    }, null, 2)
+  })
 
   const envPath = path.join(profilePath, "env")
   createDirectory({ path: envPath, recursive: true })
   createFile({
     path: path.join(envPath, "default.jsonc"),
-    content: "{}"
+    content: JSON.stringify({
+      "baseURL": "your-base-url"
+    }, null, 2)
   })
 
   const endpointsPath = path.join(profilePath, "endpoints")
   createDirectory({ path: endpointsPath, recursive: true })
   createFile({
     path: path.join(endpointsPath, "default.jsonc"),
-    content: "{}"
+    content: JSON.stringify({
+      "SampleEndpoint": {
+        "path": "/posts",
+        "method": "GET",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "params": {
+          "id": "1"
+        }
+      }
+    }, null, 2)
   })
 
   return profilePath
