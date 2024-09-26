@@ -1,4 +1,4 @@
-interface CmdDefinition {
+export interface CmdDefinition {
   command: string
   description: string
   options: Record<string, string>

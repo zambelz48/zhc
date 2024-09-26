@@ -1,6 +1,7 @@
 {
   "name": "zhc",
   "version": "0.0.1",
+  "releaseBuildDate": "26 September 2024, 12:00:00",
   "description": "API Management Tool",
   "main": "dist/index.js",
   "bin": {
