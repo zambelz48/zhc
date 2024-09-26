@@ -58,11 +58,18 @@ export default createCommand({
     "h:help": "Show help",
   }
 }, (opt) => {
+  if (Object.keys(opt).length === 0) {
+    showHelp()
+    return
+  }
+
   if (opt.version) {
     showVersion()
+    return
   }
 
   if (opt.help) {
     showHelp()
+    return
   }
 })

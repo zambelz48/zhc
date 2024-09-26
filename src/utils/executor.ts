@@ -1,7 +1,7 @@
 import { CmdExecutor } from "./cmd"
 
 const execute = async (cmds: CmdExecutor[], args: string[]) => {
-  if (args[0].startsWith("-")) {
+  if (args.length === 0 || args[0].startsWith("-")) {
     const commonCommand = cmds.find((cmd) => cmd.command === "base")
     commonCommand?.action(args)
     return
