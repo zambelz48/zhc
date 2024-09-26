@@ -5,8 +5,12 @@ export default createCommand({
   command: "api",
   description: "API management",
   options: {
-    "c:call": "API call",
-    "e:edit": "Edit API call",
+    "p:profile": "Select Profile",
+    "e:env": "Select Environment",
+    "c:call": "Perform API call",
+    "a:args": "Arguments for API call",
+    "E:edit": "Edit API call",
+    "v:verbose": "Verbose output"
   }
 }, async (options) => {
   if (options.call) {

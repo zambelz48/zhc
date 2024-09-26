@@ -22,6 +22,7 @@ const createProfile = (name: string): string | never => {
   createFile({
     path: path.join(envPath, "default.jsonc"),
     content: JSON.stringify({
+      "protocol": "https",
       "baseURL": "your-base-url"
     }, null, 2)
   })
