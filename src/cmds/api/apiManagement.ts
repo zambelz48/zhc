@@ -2,6 +2,7 @@ import path from "node:path"
 import fs from "node:fs"
 import { ROOT_PATH } from "../../utils/global"
 import apiTools from "./tools"
+import { formatContent } from "../../utils/common"
 
 type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
@@ -27,8 +28,7 @@ const getEnvData = (
     const envFilePath = path.join(envDirPath, targetEnv)
 
     const envContent = fs.readFileSync(envFilePath, "utf-8")
-    const formattedContent = envContent.replace(/\/\/.*/g, "")
-    const parsedContent = JSON.parse(formattedContent)
+    const parsedContent = JSON.parse(formatContent(envContent))
 
     return parsedContent
   } catch (err) {
@@ -67,7 +67,7 @@ const getEndpointData = (
     const endpointFilePath = path.join(targetEndpointDir, targetEndpoint)
 
     const endpointContent = fs.readFileSync(endpointFilePath, "utf-8")
-    const parsedContent = JSON.parse(endpointContent)
+    const parsedContent = JSON.parse(formatContent(endpointContent))
 
     const data = Object.entries(parsedContent)
       .filter(([key]) => key === endpointName)[0]
@@ -202,7 +202,7 @@ const constructResponse = async (
     responseHeaders[key] = value
   }
 
-  const result: Record<string, any> = {}
+  const result: Record<string, unknown> = {}
 
   if (response.status > 499) {
     result["status"] = response.status
@@ -212,7 +212,6 @@ const constructResponse = async (
   }
 
   const responseBody = await response.json()
-  result["type"] = response.type
   result[method] = response.url
   result["status"] = response.status
   result["headers"] = responseHeaders

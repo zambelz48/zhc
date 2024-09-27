@@ -18,7 +18,7 @@ export default createCommand({
 
     const response = await httpRequest(options)
     console.log("API Response:")
-    console.log(response)
+    console.dir(response, { depth: 5 })
     console.log()
 
     console.timeEnd("API Request Time")

@@ -50,7 +50,13 @@ const createFile = ({
     throw new Error(`Failed to create "${path}"`)
   }
 }
+
+const formatContent = (content: string) => {
+  return content.replace(/\/\/.*/g, "")
+}
+
 export {
   createDirectory,
-  createFile
+  createFile,
+  formatContent
 }
