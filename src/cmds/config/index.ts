@@ -1,17 +1,26 @@
 import { createCommand } from "../../utils/cmd"
-import { initConfig, loadConfig } from "./configManagement"
+import { initConfig, setConfig, viewCurrentConfig } from "./configManagement"
 
-export default createCommand({
-  command: "config",
-  description: "Configuration management",
-  options: {
-    "i:init": "Initialize",
-    "l:load": "Load config"
+export default createCommand(
+  {
+    command: "config",
+    description: "Configuration management",
+    options: {
+      "i:init": "Initialize ZHC configuration",
+      "s:set": "Show or configure current shell"
+    }
+  },
+  async (options) => {
+    if (options.init) {
+      initConfig()
+      return
+    }
+
+    if (options.set) {
+      setConfig(options)
+      return
+    }
+
+    viewCurrentConfig()
   }
-}, async (options) => {
-  if (options.init) {
-    initConfig()
-  } else if (options.load) {
-    await loadConfig(options)
-  }
-})
+)

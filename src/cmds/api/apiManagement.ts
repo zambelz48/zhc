@@ -3,15 +3,9 @@ import fs from "node:fs"
 import { ROOT_PATH } from "../../utils/global"
 import apiTools from "./tools"
 import { formatContent } from "../../utils/common"
+import { getConfigData } from "../../utils/config"
 
 type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
-
-const getConfigData = (): Record<string, any> | undefined => {
-  const config = path.join(ROOT_PATH, "config.jsonc")
-  const content = fs.readFileSync(config, "utf-8")
-
-  return JSON.parse(content)
-}
 
 const getEnvData = (
   profile?: string,
@@ -85,21 +79,47 @@ const assignValue = (
 ) => {
   let result = { ...target }
 
-  const hasOpenBracket = (str: string) => {
+  const hasBracket = (str: string) => {
     return str[0] === "{" && str[1] === "{"
-  }
-  const hasCloseBracket = (str: string) => {
-    return str[str.length - 1] === "}" && str[str.length - 2] === "}"
+      && str[str.length - 1] === "}" && str[str.length - 2] === "}"
   }
 
   for (const [key, value] of Object.entries(target)) {
-    if (hasOpenBracket(value) && hasCloseBracket(value)) {
-      const paramKey = value.slice(2, value.length - 2)
-      if (src[paramKey]) {
-        result[key] = src[paramKey]
-      } else {
-        result[key] = ""
-      }
+    if (!hasBracket(value)) {
+      continue
+    }
+
+    const paramKey = value.slice(2, value.length - 2)
+    if (src[paramKey]) {
+      result[key] = src[paramKey]
+    } else {
+      result[key] = ""
+    }
+  }
+
+  return result
+}
+
+const assignValueFromArgs = (
+  target: Record<string, any>,
+  args?: string
+) => {
+  let result = { ...target }
+
+  if (!args || args.trim() === "") {
+    return result
+  }
+
+  const argObjects = args.split(":").map((arg) => {
+    const [key, value] = arg.split("=")
+    return { [key]: value }
+  })
+
+  for (const arg of argObjects) {
+    const key = Object.keys(arg)[0]
+    const value = Object.values(arg)[0]
+    if (target[key]) {
+      result[key] = value
     }
   }
 
@@ -110,10 +130,8 @@ const assignValueWithTool = (target: Record<string, any>) => {
   let result = { ...target }
 
   const hasToolSign = (str: string) => {
-    return str[0] === "<"
-      && str[1] === "%"
-      && str[str.length - 2] === "%"
-      && str[str.length - 1] === ">"
+    return str[0] === "<" && str[1] === "%"
+      && str[str.length - 2] === "%" && str[str.length - 1] === ">"
   }
 
   const getToolName = (key: string): string => {
@@ -130,14 +148,16 @@ const assignValueWithTool = (target: Record<string, any>) => {
   }
 
   for (const [key, value] of Object.entries(target)) {
-    if (hasToolSign(value)) {
-      const toolName = getToolName(value)
-      const toolFn = value.slice(2, value.length - 2)
-      const args = getArgs(toolFn)
-      const valueFromTool = apiTools(toolName, ...args)
-      if (valueFromTool) {
-        result[key] = valueFromTool
-      }
+    if (!hasToolSign(value)) {
+      continue
+    }
+
+    const toolName = getToolName(value)
+    const toolFn = value.slice(2, value.length - 2)
+    const args = getArgs(toolFn)
+    const valueFromTool = apiTools(toolName, ...args)
+    if (valueFromTool) {
+      result[key] = valueFromTool
     }
   }
 
@@ -146,7 +166,8 @@ const assignValueWithTool = (target: Record<string, any>) => {
 
 const configureRequest = (
   envData: Record<string, any> | undefined,
-  endpointData: Record<string, any> | undefined
+  endpointData: Record<string, any> | undefined,
+  additionalArgs: string
 ): {
   method: HTTPMethod,
   finalURL: string,
@@ -159,18 +180,22 @@ const configureRequest = (
 
   const fullURL = `${envData.protocol}://${envData.baseURL}${endpointData["path"]}`
   const method: HTTPMethod = endpointData["method"]
-  const headers: Record<string, string> = assignValue(envData, endpointData["headers"])
-  const params: Record<string, any> = assignValue(envData, endpointData["params"])
-
-  const finalHeaders = assignValueWithTool(headers)
-  const finalParams = assignValueWithTool(params)
+  const headers: Record<string, string> = assignValueWithTool(
+    assignValue(envData, endpointData["headers"])
+  )
+  const params = assignValueWithTool(
+    assignValueFromArgs(
+      assignValue(envData, endpointData["params"]),
+      additionalArgs
+    )
+  )
 
   let finalURL = fullURL
   let requestData: Record<string, any> = {}
   switch (method) {
     case "GET":
-      finalURL = params && Object.keys(finalParams).length > 0
-        ? `${fullURL}?${new URLSearchParams(finalParams).toString()}`
+      finalURL = params && Object.keys(params).length > 0
+        ? `${fullURL}?${new URLSearchParams(params).toString()}`
         : fullURL
       requestData = {
         method,
@@ -182,8 +207,8 @@ const configureRequest = (
     case "PATCH":
       requestData = {
         method,
-        headers: finalHeaders,
-        body: finalParams ? finalParams : ""
+        headers,
+        body: params ? params : ""
       }
       break
     case "DELETE":
@@ -243,9 +268,11 @@ const httpRequest = async (opt: Record<string, string | boolean>) => {
       return
     }
 
+    const additionalArgs = opt?.args as string
     const { method, finalURL, requestData } = configureRequest(
       envData,
-      endpointData
+      endpointData,
+      additionalArgs
     )
 
     if (opt?.verbose) {

@@ -2,6 +2,7 @@ import fs from "node:fs"
 import path from "node:path"
 import { ROOT_PATH } from "../../utils/global"
 import { createProfile } from "../../utils/profile"
+import { getConfigData, getProfileConfig } from "../../utils/config"
 
 const initConfig = () => {
   try {
@@ -33,13 +34,40 @@ const initConfig = () => {
   }
 }
 
-const loadConfig = async (opt: Record<string, string | boolean>) => {
-  console.log("Loading config...")
-  console.log("Option 1:", opt?.opt1)
-  console.log("Option 2:", opt?.opt2)
+const setConfig = async (opt: Record<string, string | boolean>) => {
+  if (typeof opt?.set !== "string" || opt?.set === "") {
+    console.error("No input provided")
+    return
+  }
+
+  const configInput = opt?.set as string
+  const configs = configInput.split(":")
+
+  const isGlobal = opt?.global || false
+  if (isGlobal) {
+    console.log("Setting global config...")
+    return
+  }
+
+  // TODO: add functionality to set profile config
+  // globally or locally
+  console.log("TODO: Set profile config")
+}
+
+const viewCurrentConfig = async () => {
+  const configData = getConfigData()
+  const profileConfig = getProfileConfig()
+
+  const output: Record<string, any> = {
+    ...configData,
+    ...profileConfig
+  }
+
+  console.log(output)
 }
 
 export {
   initConfig,
-  loadConfig
+  setConfig,
+  viewCurrentConfig
 }

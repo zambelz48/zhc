@@ -33,7 +33,6 @@ const createDirectory = ({
 const createFile = ({
   path,
   force = false,
-  recursive = false,
   content = ""
 }: CreateFileOptions) => {
   if (!force && fs.existsSync(path)) {

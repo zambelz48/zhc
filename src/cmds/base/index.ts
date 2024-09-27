@@ -30,7 +30,10 @@ const showHelp = () => {
 
   console.log("Available Commands:")
 
-  const minCommandLength = availableCommands.map((cmd) => cmd.command.length).sort()[availableCommands.length - 1]
+  const minCommandLength = availableCommands
+    .map((cmd) => cmd.command.length)
+    .sort()[availableCommands.length - 1]
+
   const formatCommandName = (cmd: string) => {
     const diff = minCommandLength - cmd.length
     return cmd + " ".repeat(diff)
@@ -50,26 +53,29 @@ const showHelp = () => {
   console.log()
 }
 
-export default createCommand({
-  command: "base",
-  description: "",
-  options: {
-    "v:version": "Show version",
-    "h:help": "Show help",
-  }
-}, (opt) => {
-  if (Object.keys(opt).length === 0) {
-    showHelp()
-    return
-  }
+export default createCommand(
+  {
+    command: "base",
+    description: "",
+    options: {
+      "v:version": "Show version",
+      "h:help": "Show help",
+    }
+  },
+  (opt) => {
+    if (Object.keys(opt).length === 0) {
+      showHelp()
+      return
+    }
 
-  if (opt.version) {
-    showVersion()
-    return
-  }
+    if (opt.version) {
+      showVersion()
+      return
+    }
 
-  if (opt.help) {
-    showHelp()
-    return
+    if (opt.help) {
+      showHelp()
+      return
+    }
   }
-})
+)
