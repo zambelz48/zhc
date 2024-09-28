@@ -1,9 +1,9 @@
 import path from "node:path"
 import fs from "node:fs"
 import { ROOT_PATH } from "../../utils/global"
-import apiTools from "./tools"
 import { formatContent } from "../../utils/common"
 import { getConfigData } from "../../utils/config"
+import runApiTool from "./toolExecutor"
 
 type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
@@ -147,7 +147,7 @@ const assignValueWithTool = (target: Record<string, any>) => {
     const toolName = getToolName(value)
     const toolFn = value.slice(2, value.length - 2)
     const args = getArgs(toolFn)
-    const valueFromTool = apiTools(toolName, ...args)
+    const valueFromTool = runApiTool(toolName, ...args)
     if (valueFromTool) {
       result[key] = valueFromTool
     }

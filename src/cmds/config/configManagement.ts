@@ -21,6 +21,11 @@ const initConfig = () => {
       fs.writeFileSync(config, JSON.stringify(content, null, 2))
     }
 
+    const toolPath = path.join(ROOT_PATH, "tools")
+    if (!fs.existsSync(toolPath)) {
+      fs.mkdirSync(toolPath)
+    }
+
     try {
       const newProfile = createProfile("default")
       console.log("New profile created at: ", newProfile)

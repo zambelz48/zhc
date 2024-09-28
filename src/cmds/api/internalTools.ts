@@ -7,14 +7,6 @@ const randomValue = (length: number) => {
   return result
 }
 
-export default function apiTools(
-  tool: string,
-  ...args: string[]
-) {
-  switch (tool) {
-    case "randomValue":
-      return randomValue(parseInt(args[0]))
-  }
-
-  return null
+export {
+  randomValue
 }
