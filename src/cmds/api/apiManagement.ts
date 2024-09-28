@@ -34,37 +34,29 @@ const getEndpointData = (
   name: string,
   profile?: string
 ): Record<string, any> | undefined => {
-  if (!name) {
+  if (!name || name.trim() === "") {
     throw new Error("Name is required")
   }
-
-  const splittedName = name.split(":")
-  if (splittedName.length > 1 && splittedName.length < 3) {
-    throw new Error("Invalid name format")
-  }
-
-  const endpointGroup = splittedName[0] || ""
-  const endpointFile = splittedName[1] || ""
-  const endpointName = splittedName.length === 0
-    ? splittedName[0]
-    : splittedName[2]
 
   try {
     const configData = getConfigData()
 
     const targetProfile = profile || configData?.defaultProfile
-    const profilePath = `profiles/${targetProfile}`
+    const endpointsDirPath = path.join(
+      ROOT_PATH, `profiles/${targetProfile}`, "endpoints"
+    )
 
-    const endpointsDirPath = path.join(ROOT_PATH, profilePath, "endpoints")
-    const targetEndpointDir = path.join(endpointsDirPath, endpointGroup)
-    const targetEndpoint = `${endpointFile !== "" ? endpointFile : "default"}.jsonc`
-    const endpointFilePath = path.join(targetEndpointDir, targetEndpoint)
+    const targetEndpointPath = name.split(":").slice(0, -1).join("/")
+    const targetEndpointName = name.split(":").slice(-1)[0]
+    const endpointFilePath = path.join(
+      endpointsDirPath, `${targetEndpointPath || "default"}.jsonc`
+    )
 
     const endpointContent = fs.readFileSync(endpointFilePath, "utf-8")
     const parsedContent = JSON.parse(formatContent(endpointContent))
 
     const data = Object.entries(parsedContent)
-      .filter(([key]) => key === endpointName)[0]
+      .filter(([key]) => key === targetEndpointName)[0]
 
     return data[1] as Record<string, any>
   } catch (err) {
@@ -194,6 +186,7 @@ const configureRequest = (
   let requestData: Record<string, any> = {}
   switch (method) {
     case "GET":
+      // TODO: Need to revisit this part
       finalURL = params && Object.keys(params).length > 0
         ? `${fullURL}?${new URLSearchParams(params).toString()}`
         : fullURL
