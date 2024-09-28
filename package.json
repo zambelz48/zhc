@@ -2,7 +2,16 @@
   "name": "zhc",
   "version": "0.0.1",
   "releaseBuildDate": "26 September 2024, 12:00:00",
-  "description": "API Management Tool",
+  "description": "API Management Tools",
+  "homepage": "https://github.com/zambelz48/zhc#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zambelz48/zhc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zambelz48/zhc/issues",
+    "email": "nanda.julianda48@gmail.com"
+  },
   "main": "dist/index.js",
   "bin": {
     "zhc": "./dist/index.js"
