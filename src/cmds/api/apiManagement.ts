@@ -4,6 +4,7 @@ import { ROOT_PATH } from "../../utils/global"
 import { formatContent } from "../../utils/common"
 import { getConfigData } from "../../utils/config"
 import runApiTool from "./toolExecutor"
+import { logError } from "../../utils/logger"
 
 type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
@@ -60,7 +61,7 @@ const getEndpointData = (
 
     return data[1] as Record<string, any>
   } catch (err) {
-    console.error(err)
+    logError(`${err}`)
     return undefined
   }
 }
@@ -166,7 +167,7 @@ const configureRequest = (
   requestData: Record<string, any>
 } => {
   if (!envData || !endpointData) {
-    console.error("Environment or endpoint data not found")
+    logError("Environment or endpoint data not found")
     return { method: "GET", finalURL: "", requestData: {} }
   }
 
@@ -243,21 +244,21 @@ const httpRequest = async (opt: Record<string, string | boolean>) => {
   try {
     const envData = getEnvData(opt?.profile as string, opt?.env as string)
     if (!envData) {
-      console.error("Environment data not found")
+      logError("Environment data not found")
       return
     }
 
     const protocol = envData.protocol as string
     const baseURL = envData.baseURL as string
     if (!protocol || !baseURL) {
-      console.error("Base URL not found")
+      logError("Base URL not found")
       return
     }
 
     const name = opt?.call as string
     const endpointData = getEndpointData(name, opt?.profile as string)
     if (!endpointData) {
-      console.error("Endpoint data not found")
+      logError("Endpoint data not found")
       return
     }
 
@@ -284,7 +285,7 @@ const httpRequest = async (opt: Record<string, string | boolean>) => {
 
     return constructResponse(method, response)
   } catch (err) {
-    console.error(err)
+    logError(`${err}`)
   }
 }
 

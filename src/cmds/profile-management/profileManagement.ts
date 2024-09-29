@@ -1,24 +1,25 @@
+import { logError, logInfo } from "../../utils/logger"
 import { createProfile, removeProfile } from "../../utils/profile"
 
 const createNewProfile = (opt: Record<string, string | boolean>) => {
   const profileName = opt?.add as string
   if (!profileName) {
-    console.error("Profile name is required")
+    logError("Profile name is required")
     return
   }
 
   try {
     const newProfile = createProfile(profileName)
-    console.log("New profile created at: ", newProfile)
+    logInfo("New profile created at: ", newProfile)
   } catch (err) {
-    console.error(err)
+    logError(`${err}`)
   }
 }
 
 const removeRegisteredProfile = (opt: Record<string, string | boolean>) => {
   const profileName = opt?.remove as string
   if (!profileName) {
-    console.error("Profile name is required")
+    logError("Profile name is required")
     return
   }
 
@@ -26,7 +27,7 @@ const removeRegisteredProfile = (opt: Record<string, string | boolean>) => {
     removeProfile(profileName)
     console.log(`Profile "${profileName}" has been removed`)
   } catch (err) {
-    console.error(err)
+    logError(`${err}`)
   }
 }
 

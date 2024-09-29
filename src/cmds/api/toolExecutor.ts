@@ -2,6 +2,7 @@ import { execSync } from "node:child_process"
 import path from "node:path"
 import { ROOT_PATH } from "../../utils/global"
 import { randomValue } from "./internalTools"
+import { logWarning } from "../../utils/logger"
 
 const execInternalTool = (tool: string, ...args: string[]) => {
   switch (tool) {
@@ -21,6 +22,7 @@ const execExternalTool = (tool: string, ...args: string[]) => {
     .filter(file => file.trim() !== "")
 
   if (fileLists.length === 0) {
+    logWarning("No external tools found")
     return null
   }
 
@@ -30,6 +32,7 @@ const execExternalTool = (tool: string, ...args: string[]) => {
   })
 
   if (!targetFileName) {
+    logWarning(`External tool source for "${tool}" not found`)
     return null
   }
 
@@ -43,6 +46,7 @@ const execExternalTool = (tool: string, ...args: string[]) => {
     .charAt(3) === "x"
 
   if (!isExecutable) {
+    logWarning(`External tool source for "${tool}" is not executable`)
     return null
   }
 
@@ -64,6 +68,7 @@ const execShellTool = (...args: string[]) => {
     const cmd = execSync(cmdInput)
     return cmd.toString().replace("\n", "")
   } catch {
+    logWarning(`Failed to execute shell command: ${cmdInput}`)
     return null
   }
 }
@@ -73,6 +78,7 @@ export default function runApiTool(
   ...args: string[]
 ) {
   if (!tool || tool.trim() === "") {
+    logWarning("No tool provided")
     return null
   }
 

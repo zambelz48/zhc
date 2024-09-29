@@ -3,6 +3,7 @@ import path from "node:path"
 import { ROOT_PATH } from "../../utils/global"
 import { createProfile } from "../../utils/profile"
 import { getConfigData, getProfileConfig } from "../../utils/config"
+import { logError, logInfo } from "../../utils/logger"
 
 const initConfig = () => {
   try {
@@ -28,20 +29,20 @@ const initConfig = () => {
 
     try {
       const newProfile = createProfile("default")
-      console.log("New profile created at: ", newProfile)
+      logInfo("New profile created at: ", newProfile)
     } catch (err) {
-      console.error(err)
+      logError(`${err}`)
     }
 
-    console.log("Config initialized")
+    logInfo("Config initialized")
   } catch (err) {
-    console.error(err)
+    logError(`${err}`)
   }
 }
 
 const setConfig = async (opt: Record<string, string | boolean>) => {
   if (typeof opt?.set !== "string" || opt?.set === "") {
-    console.error("No input provided")
+    logError("No input provided")
     return
   }
 
