@@ -17,42 +17,37 @@ const execExternalTool = (tool: string, ...args: string[]) => {
 
   const fileLists = execSync(`ls ${executableLocation} | awk '{ print $1 }'`)
     .toString()
-    .replace("\n", ",")
+    .split("\n")
+    .filter(file => file.trim() !== "")
+
   if (fileLists.length === 0) {
     return null
   }
 
-  const fileName = fileLists.split(",")
-    .find(file => file.includes(tool))
+  const targetFileName = fileLists.find(file => {
+    const fileParts = file.split(".")
+    return fileParts[0] === tool
+  })
 
-  if (!fileName) {
+  if (!targetFileName) {
     return null
   }
 
   const executableFilePath = path.join(
     executableLocation,
-    fileName.replace("\n", "")
+    targetFileName.replace("\n", "")
   )
 
-  let platformCmd = ""
-  if (executableFilePath.includes(".sh")) {
-    platformCmd = "sh"
-  } else if (executableFilePath.includes(".js")) {
-    platformCmd = "node"
-  } else if (executableFilePath.includes(".ts")) {
-    platformCmd = "ts-node"
-  } else if (executableFilePath.includes(".py")) {
-    platformCmd = "python"
-  } else if (executableFilePath.includes(".rb")) {
-    platformCmd = "ruby"
-  } else if (executableFilePath.includes(".go")) {
-    platformCmd = "go run"
-  } else {
+  const isExecutable = execSync(`ls -l ${executableFilePath} | awk '{ print $1 }'`)
+    .toString()
+    .charAt(3) === "x"
+
+  if (!isExecutable) {
     return null
   }
 
   try {
-    const cmd = execSync(`${platformCmd} ${executableFilePath} ${args}`)
+    const cmd = execSync(`${executableFilePath} ${args}`)
     return cmd.toString().replace("\n", "")
   } catch {
     return null
