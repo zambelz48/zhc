@@ -1,12 +1,11 @@
 import path from "node:path"
 import fs from "node:fs"
-import { PROFILES_PATH } from "../../utils/global"
-import { formatContent } from "../../utils/common"
-import { getConfigData } from "../../utils/config"
-import { logError, logInfo } from "../../utils/logger"
-import runCustomScript from "./scriptExecutor"
-
-type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
+import { PROFILES_PATH } from "../../../utils/global"
+import { formatContent } from "../../../utils/common"
+import { getConfigData } from "../../../utils/config"
+import { logError, logInfo } from "../../../utils/logger"
+import runCustomScript from "../shared/scriptExecutor"
+import { HTTPMethod } from "./restHttpMethod"
 
 const getEnvData = (
   profile?: string,
@@ -290,7 +289,7 @@ const httpRequest = async (opt: Record<string, string | boolean>) => {
   }
 }
 
-export default async function executeApiCall(
+export default async function executeRestApi(
   options: Record<string, string | boolean>
 ) {
   console.time("API Request Time")

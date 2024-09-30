@@ -1,6 +1,6 @@
 import { createCommand } from "../../utils/cmd"
-import executeApiCall from "./apiCall"
-import { getApiList } from "./apiManagement"
+import executeRestApi from "./rest/restApiCall"
+import { getRestApiList } from "./rest/restApiManagement"
 
 export default createCommand(
   {
@@ -18,12 +18,12 @@ export default createCommand(
   },
   async (options) => {
     if (options.call) {
-      executeApiCall(options)
+      executeRestApi(options)
       return
     }
 
     if (options.list) {
-      getApiList(options)
+      getRestApiList(options)
       return
     }
 

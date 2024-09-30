@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process"
 import path from "node:path"
-import { ROOT_PATH } from "../../utils/global"
-import { logWarning } from "../../utils/logger"
+import { ROOT_PATH } from "../../../utils/global"
+import { logWarning } from "../../../utils/logger"
 import { randomValueScript } from "./internalScripts"
 
 const execInternalScript = (name: string, ...args: string[]) => {

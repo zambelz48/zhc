@@ -1,13 +1,33 @@
 import path from "node:path"
 import fs from "node:fs"
 import chalk from "chalk"
-import { getConfigData } from "../../utils/config"
-import { PROFILES_PATH } from "../../utils/global"
-import { logError } from "../../utils/logger"
-import { formatContent } from "../../utils/common"
+import { getConfigData } from "../../../utils/config"
+import { PROFILES_PATH } from "../../../utils/global"
+import { logError } from "../../../utils/logger"
+import { formatContent } from "../../../utils/common"
 import { execSync } from "node:child_process"
+import { HTTPMethod } from "./restHttpMethod"
 
-const apiInfo = (filePath: string, tabCount: number = 0) => {
+const endpointInfo = (method: HTTPMethod, path: string) => {
+  switch (method) {
+    case "GET":
+      return chalk.hex("#6fa8fc")(`[${method}] ${path}`)
+    case "PUT":
+      return chalk.hex("#fb983c")(`[${method}] ${path}`)
+    case "POST":
+      return chalk.hex("#49f176")(`[${method}] ${path}`)
+    case "DELETE":
+      return chalk.hex("#f73a3d")(`[${method}] ${path}`)
+    case "OPTIONS":
+      return chalk.hex("#348EEE")(`[${method}] ${path}`)
+    case "HEAD":
+      return chalk.hex("#8522f6")(`[${method}] ${path}`)
+    case "PATCH":
+      return chalk.hex("#49ddba")(`[${method}] ${path}`)
+  }
+}
+
+const restApiInfo = (filePath: string, tabCount: number = 0) => {
   const fileLists = execSync(`ls ${filePath} | awk '{ print $1 }'`)
     .toString()
     .split("\n")
@@ -20,7 +40,7 @@ const apiInfo = (filePath: string, tabCount: number = 0) => {
     if (isDir) {
       const dirName = chalk.yellow.bold(file)
       console.log(`${space.repeat(tabCount)}\u2022 ${dirName}:`)
-      apiInfo(path.join(filePath, file), tabCount + 1)
+      restApiInfo(path.join(filePath, file), tabCount + 1)
     } else {
       const endpointFilePath = path.join(
         filePath,
@@ -39,17 +59,18 @@ const apiInfo = (filePath: string, tabCount: number = 0) => {
       const apiList = Object.entries(parsedContent)
 
       for (const [key, value] of apiList) {
-        const formattedKey = chalk.greenBright(key)
+        const formattedKey = chalk.bold(key)
+
         // @ts-ignore
-        const method = `[${chalk.blue(value.method)}]`
-        // @ts-ignore
-        console.log(`${space.repeat(tabCount+1)}\u2022 ${formattedKey}: ${method} ${value.path}`)
+        const info = endpointInfo(value.method, value.path)
+
+        console.log(`${space.repeat(tabCount+1)}\u2022 ${formattedKey}: ${info}`)
       }
     }
   }
 }
 
-export const getApiList = (options: Record<string, string | boolean>) => {
+export const getRestApiList = (options: Record<string, string | boolean>) => {
   try {
     const profile = options.profile as string
     const configData = getConfigData()
@@ -60,7 +81,7 @@ export const getApiList = (options: Record<string, string | boolean>) => {
     )
 
     console.log("API List")
-    apiInfo(endpointsDirPath)
+    restApiInfo(endpointsDirPath)
   } catch (err) {
     logError(`${err}`)
     return undefined
