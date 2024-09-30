@@ -1,6 +1,6 @@
 import path from "node:path"
 import fs from "node:fs"
-import { ROOT_PATH } from "./global"
+import { PROFILES_PATH, ROOT_PATH } from "./global"
 
 const getConfigData = (): Record<string, any> | undefined => {
   const config = path.join(ROOT_PATH, "config.jsonc")
@@ -13,8 +13,8 @@ const getProfileConfig = (profile?: string) => {
   const configData = getConfigData()
 
   const targetProfile = profile || configData?.defaultProfile
-  const profilePath = `profiles/${targetProfile}`
-  const profileConfigPath = path.join(ROOT_PATH, profilePath, "config.jsonc")
+  const profilePath = path.join(PROFILES_PATH, targetProfile)
+  const profileConfigPath = path.join(profilePath, "config.jsonc")
   const profileConfigContent = fs.readFileSync(profileConfigPath, "utf-8")
   const profileConfig = JSON.parse(profileConfigContent)
 

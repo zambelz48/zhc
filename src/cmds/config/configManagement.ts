@@ -7,7 +7,7 @@ import { logError, logInfo } from "../../utils/logger"
 
 const initConfig = () => {
   try {
-    console.log("Initializing config...")
+    logInfo("Initializing config...")
 
     if (!fs.existsSync(ROOT_PATH)) {
       fs.mkdirSync(ROOT_PATH)
@@ -22,9 +22,9 @@ const initConfig = () => {
       fs.writeFileSync(config, JSON.stringify(content, null, 2))
     }
 
-    const toolPath = path.join(ROOT_PATH, "tools")
-    if (!fs.existsSync(toolPath)) {
-      fs.mkdirSync(toolPath)
+    const scriptPath = path.join(ROOT_PATH, "scripts")
+    if (!fs.existsSync(scriptPath)) {
+      fs.mkdirSync(scriptPath)
     }
 
     try {

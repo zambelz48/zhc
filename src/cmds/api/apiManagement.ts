@@ -2,7 +2,7 @@ import path from "node:path"
 import fs from "node:fs"
 import chalk from "chalk"
 import { getConfigData } from "../../utils/config"
-import { ROOT_PATH } from "../../utils/global"
+import { PROFILES_PATH } from "../../utils/global"
 import { logError } from "../../utils/logger"
 import { formatContent } from "../../utils/common"
 import { execSync } from "node:child_process"
@@ -56,7 +56,7 @@ export const getApiList = (options: Record<string, string | boolean>) => {
 
     const targetProfile = profile || configData?.defaultProfile
     const endpointsDirPath = path.join(
-      ROOT_PATH, `profiles/${targetProfile}`, "endpoints"
+      PROFILES_PATH, targetProfile, "endpoints"
     )
 
     console.log("API List")

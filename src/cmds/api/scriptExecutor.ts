@@ -1,20 +1,20 @@
 import { execSync } from "node:child_process"
 import path from "node:path"
 import { ROOT_PATH } from "../../utils/global"
-import { randomValue } from "./internalTools"
 import { logWarning } from "../../utils/logger"
+import { randomValueScript } from "./internalScripts"
 
-const execInternalTool = (tool: string, ...args: string[]) => {
-  switch (tool) {
+const execInternalScript = (name: string, ...args: string[]) => {
+  switch (name) {
     case "randomValue":
-      return randomValue(parseInt(args[0]))
+      return randomValueScript(parseInt(args[0]))
   }
 
   return null
 }
 
-const execExternalTool = (tool: string, ...args: string[]) => {
-  const executableLocation = path.join(ROOT_PATH, "tools")
+const execExternalScript = (name: string, ...args: string[]) => {
+  const executableLocation = path.join(ROOT_PATH, "scripts")
 
   const fileLists = execSync(`ls ${executableLocation} | awk '{ print $1 }'`)
     .toString()
@@ -22,17 +22,17 @@ const execExternalTool = (tool: string, ...args: string[]) => {
     .filter(file => file.trim() !== "")
 
   if (fileLists.length === 0) {
-    logWarning("No external tools found")
+    logWarning("No external scripts found")
     return null
   }
 
   const targetFileName = fileLists.find(file => {
     const fileParts = file.split(".")
-    return fileParts[0] === tool
+    return fileParts[0] === name
   })
 
   if (!targetFileName) {
-    logWarning(`External tool source for "${tool}" not found`)
+    logWarning(`External script source for "${name}" not found`)
     return null
   }
 
@@ -46,7 +46,7 @@ const execExternalTool = (tool: string, ...args: string[]) => {
     .charAt(3) === "x"
 
   if (!isExecutable) {
-    logWarning(`External tool source for "${tool}" is not executable`)
+    logWarning(`External script source for "${name}" is not executable`)
     return null
   }
 
@@ -58,7 +58,7 @@ const execExternalTool = (tool: string, ...args: string[]) => {
   }
 }
 
-const execShellTool = (...args: string[]) => {
+const execShellCommand = (...args: string[]) => {
   const cmdInput = args.join(" ")
   if (!cmdInput || cmdInput.trim() === "") {
     return null
@@ -73,26 +73,26 @@ const execShellTool = (...args: string[]) => {
   }
 }
 
-export default function runApiTool(
-  tool: string,
+export default function runCustomScript(
+  script: string,
   ...args: string[]
 ) {
-  if (!tool || tool.trim() === "") {
-    logWarning("No tool provided")
+  if (!script || script.trim() === "") {
+    logWarning("No script provided")
     return null
   }
 
-  const targetTools = tool.split(":")
-  const srcTool = targetTools[0]
+  const targetScripts = script.split(":")
+  const srcScript = targetScripts[0]
 
-  switch (srcTool) {
-    case "external":
-      return execExternalTool(targetTools[1], ...args)
+  switch (srcScript) {
+    case "script":
+      return execExternalScript(targetScripts[1], ...args)
 
     case "shell":
-      return execShellTool(...args)
+      return execShellCommand(...args)
 
     default:
-      return execInternalTool(targetTools[0], ...args)
+      return execInternalScript(targetScripts[0], ...args)
   }
 }

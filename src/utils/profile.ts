@@ -1,10 +1,10 @@
 import path from "node:path"
 import fs from "node:fs"
 import { createDirectory, createFile } from "./common"
-import { ROOT_PATH } from "./global"
+import { PROFILES_PATH } from "./global"
 
 const createProfile = (name: string): string | never => {
-  const profilePath = path.join(ROOT_PATH, "profiles", name)
+  const profilePath = path.join(PROFILES_PATH, name)
   if (fs.existsSync(profilePath)) {
     throw new Error(`"${profilePath}" is exists`)
   }
@@ -49,7 +49,7 @@ const createProfile = (name: string): string | never => {
 }
 
 const removeProfile = (name: string) => {
-  const profilePath = path.join(ROOT_PATH, "profiles", name)
+  const profilePath = path.join(PROFILES_PATH, name)
   if (!fs.existsSync(profilePath)) {
     throw new Error(`"${profilePath}" is not exists`)
   }

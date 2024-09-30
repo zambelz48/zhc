@@ -1,10 +1,10 @@
 import path from "node:path"
 import fs from "node:fs"
-import { ROOT_PATH } from "../../utils/global"
+import { PROFILES_PATH } from "../../utils/global"
 import { formatContent } from "../../utils/common"
 import { getConfigData } from "../../utils/config"
-import runApiTool from "./toolExecutor"
 import { logError, logInfo } from "../../utils/logger"
+import runCustomScript from "./scriptExecutor"
 
 type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
@@ -16,9 +16,7 @@ const getEnvData = (
     const configData = getConfigData()
 
     const targetProfile = profile || configData?.defaultProfile
-    const profilePath = `profiles/${targetProfile}`
-
-    const envDirPath = path.join(ROOT_PATH, profilePath, "env")
+    const envDirPath = path.join(PROFILES_PATH, targetProfile, "env")
     const targetEnv = `${env || "default"}.jsonc`
     const envFilePath = path.join(envDirPath, targetEnv)
 
@@ -44,7 +42,7 @@ const getEndpointData = (
 
     const targetProfile = profile || configData?.defaultProfile
     const endpointsDirPath = path.join(
-      ROOT_PATH, `profiles/${targetProfile}`, "endpoints"
+      PROFILES_PATH, targetProfile, "endpoints"
     )
 
     const targetEndpointPath = name.split(":").slice(0, -1).join("/")
@@ -66,7 +64,7 @@ const getEndpointData = (
   }
 }
 
-const assignValue = (
+const assignValueFromVar = (
   src: Record<string, any>,
   target: Record<string, any>
 ) => {
@@ -119,15 +117,15 @@ const assignValueFromArgs = (
   return result
 }
 
-const assignValueWithTool = (target: Record<string, any>) => {
+const assignValueFromScript = (target: Record<string, any>) => {
   let result = { ...target }
 
-  const hasToolSign = (str: string) => {
+  const hasScriptSign = (str: string) => {
     return str[0] === "<" && str[1] === "%"
       && str[str.length - 2] === "%" && str[str.length - 1] === ">"
   }
 
-  const getToolName = (key: string): string => {
+  const getScriptName = (key: string): string => {
     const openParenthesisIndex = key.indexOf("(")
     return key.slice(2, openParenthesisIndex)
   }
@@ -141,16 +139,16 @@ const assignValueWithTool = (target: Record<string, any>) => {
   }
 
   for (const [key, value] of Object.entries(target)) {
-    if (!hasToolSign(value)) {
+    if (!hasScriptSign(value)) {
       continue
     }
 
-    const toolName = getToolName(value)
-    const toolFn = value.slice(2, value.length - 2)
-    const args = getArgs(toolFn)
-    const valueFromTool = runApiTool(toolName, ...args)
-    if (valueFromTool) {
-      result[key] = valueFromTool
+    const scriptName = getScriptName(value)
+    const scriptFn = value.slice(2, value.length - 2)
+    const args = getArgs(scriptFn)
+    const valueFromScript = runCustomScript(scriptName, ...args)
+    if (valueFromScript) {
+      result[key] = valueFromScript
     }
   }
 
@@ -173,12 +171,15 @@ const configureRequest = (
 
   const fullURL = `${envData.protocol}://${envData.baseURL}${endpointData["path"]}`
   const method: HTTPMethod = endpointData["method"]
-  const headers: Record<string, string> = assignValueWithTool(
-    assignValue(envData, endpointData["headers"])
-  )
-  const params = assignValueWithTool(
+  const headers: Record<string, string> = assignValueFromScript(
     assignValueFromArgs(
-      assignValue(envData, endpointData["params"]),
+      assignValueFromVar(envData, endpointData["headers"]),
+      additionalArgs
+    )
+  )
+  const params = assignValueFromScript(
+    assignValueFromArgs(
+      assignValueFromVar(envData, endpointData["params"]),
       additionalArgs
     )
   )
