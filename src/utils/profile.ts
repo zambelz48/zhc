@@ -1,7 +1,7 @@
 import path from "node:path"
 import fs from "node:fs"
-import { createDirectory, createFile } from "./common"
 import { PROFILES_PATH } from "./global"
+import { createDirectory, createFile } from "./fileOperation"
 
 const createProfile = (name: string): string | never => {
   const profilePath = path.join(PROFILES_PATH, name)

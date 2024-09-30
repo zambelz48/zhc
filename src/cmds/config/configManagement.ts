@@ -1,31 +1,25 @@
-import fs from "node:fs"
 import path from "node:path"
 import { ROOT_PATH } from "../../utils/global"
 import { createProfile } from "../../utils/profile"
 import { getConfigData, getProfileConfig } from "../../utils/config"
 import { logError, logInfo } from "../../utils/logger"
+import { createDirectory, createFile } from "../../utils/fileOperation"
 
 const initConfig = () => {
   try {
     logInfo("Initializing config...")
 
-    if (!fs.existsSync(ROOT_PATH)) {
-      fs.mkdirSync(ROOT_PATH)
-    }
+    createDirectory({ path: ROOT_PATH })
 
-    const config = path.join(ROOT_PATH, "config.jsonc")
-    if (!fs.existsSync(config)) {
-      const content = {
+    createFile({
+      path: path.join(ROOT_PATH, "config.jsonc"),
+      content: JSON.stringify({
         "defaultProfile": "default",
         "editor": "nvim"
-      }
-      fs.writeFileSync(config, JSON.stringify(content, null, 2))
-    }
+      }, null, 2)
+    })
 
-    const scriptPath = path.join(ROOT_PATH, "scripts")
-    if (!fs.existsSync(scriptPath)) {
-      fs.mkdirSync(scriptPath)
-    }
+    createDirectory({ path: path.join(ROOT_PATH, "scripts") })
 
     try {
       const newProfile = createProfile("default")

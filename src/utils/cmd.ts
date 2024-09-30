@@ -1,3 +1,6 @@
+import chalk from "chalk"
+import { spacer } from "./common"
+
 export interface CmdDefinition {
   command: string
   description: string
@@ -50,15 +53,24 @@ export const createCommand = (
         .filter((opt) => opt === "h" || opt === "help").length > 0
 
       if (cmd.command !== "base" && hasHelpOpt) {
-        const space = "  "
-        console.log("ZHC CLI")
+        const space = spacer()
+
         console.log()
+        console.log(chalk.green("ZHC CLI"))
+        console.log()
+
         console.log(cmd.description)
-        console.log(`Usage: zhc ${cmd.command} [options]`)
-        console.log("Options:")
+        console.log()
+
+        console.log(`${chalk.yellow("Usage:")} zhc ${cmd.command} [options]`)
+        console.log()
+
+        console.log(`${chalk.yellow("Options:")}`)
         for (const [key, value] of Object.entries(cmd.options)) {
           const pairedKey = key.split(":")
-          console.log(`${space}-${pairedKey[0]}, --${pairedKey[1]}\t${value}`)
+          const shortOpt = chalk.green(`-${pairedKey[0]}`)
+          const longOpt = chalk.green(`--${pairedKey[1]}`)
+          console.log(`${space}${shortOpt}, ${longOpt}\t\t${value}`)
         }
         return
       }

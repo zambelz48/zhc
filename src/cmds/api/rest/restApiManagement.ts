@@ -4,9 +4,9 @@ import chalk from "chalk"
 import { getConfigData } from "../../../utils/config"
 import { PROFILES_PATH } from "../../../utils/global"
 import { logError } from "../../../utils/logger"
-import { formatContent } from "../../../utils/common"
-import { execSync } from "node:child_process"
+import { formatContent, spacer } from "../../../utils/common"
 import { HTTPMethod } from "./restHttpMethod"
+import { isDirectory } from "../../../utils/fileOperation"
 
 const endpointInfo = (method: HTTPMethod, path: string) => {
   switch (method) {
@@ -28,18 +28,14 @@ const endpointInfo = (method: HTTPMethod, path: string) => {
 }
 
 const restApiInfo = (filePath: string, tabCount: number = 0) => {
-  const fileLists = execSync(`ls ${filePath} | awk '{ print $1 }'`)
-    .toString()
-    .split("\n")
-    .filter(file => file.trim() !== "")
-
-  const space = "  "
+  const fileLists = fs.readdirSync(filePath)
+  const space = spacer(tabCount)
 
   for (let file of fileLists) {
-    const isDir = fs.lstatSync(path.join(filePath, file)).isDirectory()
+    const isDir = isDirectory(path.join(filePath, file))
     if (isDir) {
       const dirName = chalk.yellow.bold(file)
-      console.log(`${space.repeat(tabCount)}\u2022 ${dirName}:`)
+      console.log(`${space}\u2022 ${dirName}:`)
       restApiInfo(path.join(filePath, file), tabCount + 1)
     } else {
       const endpointFilePath = path.join(
@@ -53,7 +49,7 @@ const restApiInfo = (filePath: string, tabCount: number = 0) => {
       }
 
       const formattedFileName = chalk.yellow.bold(file.replace(".jsonc", ""))
-      console.log(`${space.repeat(tabCount)}\u2022 ${formattedFileName}:`)
+      console.log(`${space}\u2022 ${formattedFileName}:`)
 
       const parsedContent = JSON.parse(formatContent(endpointContent))
       const apiList = Object.entries(parsedContent)
@@ -64,7 +60,7 @@ const restApiInfo = (filePath: string, tabCount: number = 0) => {
         // @ts-ignore
         const info = endpointInfo(value.method, value.path)
 
-        console.log(`${space.repeat(tabCount+1)}\u2022 ${formattedKey}: ${info}`)
+        console.log(`${spacer(tabCount+1)}\u2022 ${formattedKey}: ${info}`)
       }
     }
   }
@@ -80,7 +76,10 @@ export const getRestApiList = (options: Record<string, string | boolean>) => {
       PROFILES_PATH, targetProfile, "endpoints"
     )
 
-    console.log("API List")
+    console.log()
+    console.log(`API List (${chalk.yellow(targetProfile)})`)
+    console.log()
+
     restApiInfo(endpointsDirPath)
   } catch (err) {
     logError(`${err}`)

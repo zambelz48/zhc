@@ -1,4 +1,6 @@
+import chalk from "chalk"
 import { CmdDefinition, createCommand } from "../../utils/cmd"
+import { spacer } from "../../utils/common"
 import api from "../api"
 import config from "../config"
 import profile from "../profile-management"
@@ -22,13 +24,13 @@ const showHelp = () => {
     utility
   ] as CmdDefinition[]
 
-  console.log("ZHC CLI")
+  console.log(chalk.green("ZHC CLI"))
   console.log()
 
-  console.log("Usage: zhc [command] [options] [arguments]")
+  console.log(`${chalk.yellow("Usage:")} zhc [command] [options] [arguments]`)
   console.log()
 
-  console.log("Available Commands:")
+  console.log(chalk.yellow("Available Commands:"))
 
   const minCommandLength = availableCommands
     .map((cmd) => cmd.command.length)
@@ -36,10 +38,10 @@ const showHelp = () => {
 
   const formatCommandName = (cmd: string) => {
     const diff = minCommandLength - cmd.length
-    return cmd + " ".repeat(diff)
+    return chalk.green(cmd + " ".repeat(diff))
   }
 
-  const space = "  "
+  const space = spacer()
   const descSpace = "\t\t"
 
   for (const cmd of availableCommands) {
@@ -47,12 +49,12 @@ const showHelp = () => {
   }
   console.log()
 
-  console.log("Options:")
-  console.log(`${space}-v, --version${descSpace}Show version`)
-  console.log(`${space}-h, --help${descSpace}Show help`)
+  console.log(chalk.yellow("Options:"))
+  console.log(`${space}${chalk.green("-v")}, ${chalk.green("--version")}${descSpace}Show version`)
+  console.log(`${space}${chalk.green("-h")}, ${chalk.green("--help")}${descSpace}Show help`)
   console.log()
 
-  console.log("Use 'zhc [command] --help' for more information about a command.")
+  console.log(`Use '${chalk.green("zhc [command] -h|--help")}' for more information about a command.`)
   console.log()
 }
 

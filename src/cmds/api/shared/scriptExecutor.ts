@@ -3,6 +3,7 @@ import path from "node:path"
 import { ROOT_PATH } from "../../../utils/global"
 import { logWarning } from "../../../utils/logger"
 import { randomValueScript } from "./internalScripts"
+import { fileLists, isFileExecutable, removeFileExtension } from "../../../utils/fileOperation"
 
 const execInternalScript = (name: string, ...args: string[]) => {
   switch (name) {
@@ -15,20 +16,16 @@ const execInternalScript = (name: string, ...args: string[]) => {
 
 const execExternalScript = (name: string, ...args: string[]) => {
   const executableLocation = path.join(ROOT_PATH, "scripts")
-
-  const fileLists = execSync(`ls ${executableLocation} | awk '{ print $1 }'`)
-    .toString()
-    .split("\n")
-    .filter(file => file.trim() !== "")
+  const files = fileLists(executableLocation)
 
   if (fileLists.length === 0) {
     logWarning("No external scripts found")
     return null
   }
 
-  const targetFileName = fileLists.find(file => {
-    const fileParts = file.split(".")
-    return fileParts[0] === name
+  const targetFileName = files.find(file => {
+    const fileName = removeFileExtension(file)
+    return fileName === name
   })
 
   if (!targetFileName) {
@@ -41,10 +38,7 @@ const execExternalScript = (name: string, ...args: string[]) => {
     targetFileName.replace("\n", "")
   )
 
-  const isExecutable = execSync(`ls -l ${executableFilePath} | awk '{ print $1 }'`)
-    .toString()
-    .charAt(3) === "x"
-
+  const isExecutable = isFileExecutable(executableFilePath)
   if (!isExecutable) {
     logWarning(`External script source for "${name}" is not executable`)
     return null
