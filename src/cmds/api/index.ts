@@ -1,5 +1,6 @@
 import { createCommand } from "../../utils/cmd"
-import { httpRequest } from "./apiManagement"
+import executeApiCall from "./apiCall"
+import { getApiList } from "./apiManagement"
 
 export default createCommand(
   {
@@ -11,19 +12,18 @@ export default createCommand(
       "c:call": "Perform API call",
       "a:args": "Arguments for API call",
       "E:edit": "Edit API call",
+      "l:list": "List APIs",
       "v:verbose": "Verbose output"
     }
   },
   async (options) => {
     if (options.call) {
-      console.time("API Request Time")
+      executeApiCall(options)
+      return
+    }
 
-      const response = await httpRequest(options)
-      console.log("API Response:")
-      console.dir(response, { depth: 5 })
-      console.log()
-
-      console.timeEnd("API Request Time")
+    if (options.list) {
+      getApiList(options)
       return
     }
 
