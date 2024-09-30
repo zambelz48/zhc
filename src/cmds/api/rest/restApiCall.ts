@@ -270,7 +270,7 @@ const httpRequest = async (opt: Record<string, string | boolean>) => {
     )
 
     if (opt?.verbose) {
-      logInfo("Request Payload:")
+      logInfo("[REST] Request Payload:")
       console.log({ destination: finalURL, ...requestData })
       console.log()
     }
@@ -292,12 +292,12 @@ const httpRequest = async (opt: Record<string, string | boolean>) => {
 export default async function executeRestApi(
   options: Record<string, string | boolean>
 ) {
-  console.time("API Request Time")
+  console.time("[REST] API Request Time")
 
   const response = await httpRequest(options)
-  console.log("API Response:")
+  console.log("[REST] API Response:")
   console.dir(response, { depth: 5 })
   console.log()
 
-  console.timeEnd("API Request Time")
+  console.timeEnd("[REST] API Request Time")
 }
