@@ -39,14 +39,17 @@ const showHelp = () => {
     return cmd + " ".repeat(diff)
   }
 
+  const space = "  "
+  const descSpace = "\t\t"
+
   for (const cmd of availableCommands) {
-    console.log(`  ${formatCommandName(cmd.command)}\t\t${cmd.description}`)
+    console.log(`${space}${formatCommandName(cmd.command)}${descSpace}${cmd.description}`)
   }
   console.log()
 
   console.log("Options:")
-  console.log("  -v, --version\t\tShow version")
-  console.log("  -h, --help\t\tShow help")
+  console.log(`${space}-v, --version${descSpace}Show version`)
+  console.log(`${space}-h, --help${descSpace}Show help`)
   console.log()
 
   console.log("Use 'zhc [command] --help' for more information about a command.")

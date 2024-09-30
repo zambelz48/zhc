@@ -13,11 +13,13 @@ const apiInfo = (filePath: string, tabCount: number = 0) => {
     .split("\n")
     .filter(file => file.trim() !== "")
 
+  const space = "  "
+
   for (let file of fileLists) {
     const isDir = fs.lstatSync(path.join(filePath, file)).isDirectory()
     if (isDir) {
       const dirName = chalk.yellow.bold(file)
-      console.log(`${"  ".repeat(tabCount)}\u2022 ${dirName}:`)
+      console.log(`${space.repeat(tabCount)}\u2022 ${dirName}:`)
       apiInfo(path.join(filePath, file), tabCount + 1)
     } else {
       const endpointFilePath = path.join(
@@ -30,6 +32,9 @@ const apiInfo = (filePath: string, tabCount: number = 0) => {
         continue
       }
 
+      const formattedFileName = chalk.yellow.bold(file.replace(".jsonc", ""))
+      console.log(`${space.repeat(tabCount)}\u2022 ${formattedFileName}:`)
+
       const parsedContent = JSON.parse(formatContent(endpointContent))
       const apiList = Object.entries(parsedContent)
 
@@ -38,7 +43,7 @@ const apiInfo = (filePath: string, tabCount: number = 0) => {
         // @ts-ignore
         const method = `[${chalk.blue(value.method)}]`
         // @ts-ignore
-        console.log(`${"  ".repeat(tabCount)}\u2022 ${formattedKey}: ${method} ${value.path}`)
+        console.log(`${space.repeat(tabCount+1)}\u2022 ${formattedKey}: ${method} ${value.path}`)
       }
     }
   }

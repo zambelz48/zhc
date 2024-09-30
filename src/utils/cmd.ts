@@ -50,6 +50,7 @@ export const createCommand = (
         .filter((opt) => opt === "h" || opt === "help").length > 0
 
       if (cmd.command !== "base" && hasHelpOpt) {
+        const space = "  "
         console.log("ZHC CLI")
         console.log()
         console.log(cmd.description)
@@ -57,7 +58,7 @@ export const createCommand = (
         console.log("Options:")
         for (const [key, value] of Object.entries(cmd.options)) {
           const pairedKey = key.split(":")
-          console.log(`\t-${pairedKey[0]}, --${pairedKey[1]}\t${value}`)
+          console.log(`${space}-${pairedKey[0]}, --${pairedKey[1]}\t${value}`)
         }
         return
       }
