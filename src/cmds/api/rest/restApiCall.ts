@@ -6,11 +6,15 @@ import { getConfigData } from "../../../utils/config"
 import { logError, logInfo } from "../../../utils/logger"
 import runCustomScript from "../shared/scriptExecutor"
 import { HTTPMethod } from "./restHttpMethod"
+import {
+  execPostRequestScript,
+  execPreRequestScript
+} from "../shared/requestScript"
 
 const getEnvData = (
   profile?: string,
   env?: string
-): Record<string, any> | undefined => {
+): { path: string, data: Record<string, any> } | undefined => {
   try {
     const configData = getConfigData()
 
@@ -22,7 +26,10 @@ const getEnvData = (
     const envContent = fs.readFileSync(envFilePath, "utf-8")
     const parsedContent = JSON.parse(formatContent(envContent))
 
-    return parsedContent
+    return {
+      path: envFilePath,
+      data: parsedContent
+    }
   } catch (err) {
     return undefined
   }
@@ -31,7 +38,7 @@ const getEnvData = (
 const getEndpointData = (
   name: string,
   profile?: string
-): Record<string, any> | undefined => {
+): { path: string, data: Record<string, any> } | undefined => {
   if (!name || name.trim() === "") {
     throw new Error("Name is required")
   }
@@ -56,7 +63,10 @@ const getEndpointData = (
     const data = Object.entries(parsedContent)
       .filter(([key]) => key === targetEndpointName)[0]
 
-    return data[1] as Record<string, any>
+    return {
+      path: endpointFilePath,
+      data: data[1] as Record<string, any>
+    }
   } catch (err) {
     logError(`${err}`)
     return undefined
@@ -241,13 +251,16 @@ const constructResponse = async (
 }
 
 const httpRequest = async (opt: Record<string, string | boolean>) => {
+  const verbose = opt?.verbose as boolean
+
   try {
-    const envData = getEnvData(opt?.profile as string, opt?.env as string)
-    if (!envData) {
+    const env = getEnvData(opt?.profile as string, opt?.env as string)
+    if (!env) {
       logError("Environment data not found")
       return
     }
 
+    const envData = env.data
     const protocol = envData.protocol as string
     const baseURL = envData.baseURL as string
     if (!protocol || !baseURL) {
@@ -256,10 +269,16 @@ const httpRequest = async (opt: Record<string, string | boolean>) => {
     }
 
     const name = opt?.call as string
-    const endpointData = getEndpointData(name, opt?.profile as string)
-    if (!endpointData) {
+    const endpoint = getEndpointData(name, opt?.profile as string)
+    if (!endpoint) {
       logError("Endpoint data not found")
       return
+    }
+
+    const endpointData = endpoint.data
+    const preRequestScript = endpointData.scripts?.pre as string
+    if (preRequestScript) {
+      await execPreRequestScript(preRequestScript, env, verbose)
     }
 
     const additionalArgs = opt?.args as string
@@ -269,7 +288,7 @@ const httpRequest = async (opt: Record<string, string | boolean>) => {
       additionalArgs
     )
 
-    if (opt?.verbose) {
+    if (verbose) {
       logInfo("[REST] Request Payload:")
       console.log({ destination: finalURL, ...requestData })
       console.log()
@@ -283,7 +302,19 @@ const httpRequest = async (opt: Record<string, string | boolean>) => {
       } as RequestInit
     )
 
-    return constructResponse(method, response)
+    const httpResponse = await constructResponse(method, response)
+
+    const postRequestScript = endpointData.scripts?.post as string
+    if (postRequestScript) {
+      await execPostRequestScript(
+        postRequestScript,
+        env,
+        httpResponse,
+        verbose
+      )
+    }
+
+    return httpResponse
   } catch (err) {
     logError(`${err}`)
   }
