@@ -4,6 +4,13 @@
   "releaseBuildDate": "26 September 2024, 12:00:00",
   "description": "API Management Tools",
   "homepage": "https://github.com/zambelz48/zhc#readme",
+  "keywords": [
+    "api-tools",
+    "api-management",
+    "rest-cli"
+  ],
+  "author": "zambelz48 <nanda.julianda48@gmail.com>",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zambelz48/zhc.git"
@@ -21,9 +28,6 @@
     "build": "tsc",
     "reinstall": "pnpm build && npm uninstall -g zhc && npm install -g"
   },
-  "keywords": [],
-  "author": "Nanda Julianda Akbar <nanda.julianda48@gmail.com>",
-  "license": "ISC",
   "packageManager": "pnpm@9.7.1+sha512.faf344af2d6ca65c4c5c8c2224ea77a81a5e8859cbc4e06b1511ddce2f0151512431dd19e6aff31f2c6a8f5f2aced9bd2273e1fed7dd4de1868984059d2c4247",
   "devDependencies": {
     "@types/node": "^22.5.5",
