@@ -4,17 +4,61 @@ FORMAT: `zhc <COMMAND> <OPTIONS>`
 
 ### Table of Contents
 - [Initialize](#initialize)
+- [Config Folder Structure](#config-folder-structure)
+- [Example](#example)
 - [Available Commands](#available-commands)
   - [Config Management](#config-management)
   - [Profile Management](#profile-management)
   - [API Management](#api-management)
   - [Utilities](#utilities)
-- [Config Folder Structure](#config-folder-structure)
 
 ### Initialize
 This command will generate the initial configuration 
 ```sh
 $ zhc config --init
+```
+
+### Config Folder Structure
+The root configuration will be located inside user's home directory, the name is `.zhc` with the following structure:
+```
+├── config.jsonc
+├── profiles (the collections is separated by profile)
+│   ├── default (this is the default profile, if you don't pass '-p' option, then this profile will be selected)
+│   │   ├── config.jsonc
+│   │   ├── endpoints
+│   │   │   └── default.jsonc
+│   │   └── env
+│   │       └── default.jsonc
+│   └── another_profile (this is your custom profile. you have to pass '-p <YOUR_DESIRED_PROFILE>' when doing api call)
+│       ├── config.jsonc
+│       ├── endpoints
+│       │   ├── auth
+│       │   │   └── login.jsonc
+│       │   └── user
+│       │       └── profile.jsonc
+│       └── env
+│           ├── dev.jsonc
+│           ├── stg.jsonc
+│           ├── prod.jsonc
+│           └── any-other.jsonc
+└── scripts
+    ├── your_post_script.js (this is pre-request script (only 'js' for now))
+    ├── your_pre_script.js (this is post-request script (only 'js' for now))
+    ├── sample_go_script.go
+    ├── sample_node_script.js
+    ├── sample_python_script.py
+    ├── sample_ruby_script.rb
+    └── sample_shell_script.sh
+```
+### Example
+Suppose we have the [above structure](#config-folder-structure), and we want to execute `login` endpoint inside `another_profile/endpoints/auth` using `dev` environment variable
+then we can achieve it by executing the following command:
+```
+$ zhc api -p another_profile -e dev -c auth:login
+```
+if we want to be more dynamic, we can also pass some arguments to change the predefined request parameters
+```
+$ zhc api -p another_profile -e dev -c auth:login -a "username=admin:password=123456"
 ```
 
 ### Available Commands
@@ -74,6 +118,7 @@ $ zhc config --init
   [OPTIONAL]  -p | --profile  --> target profile  
   [OPTIONAL]  -e | --env      --> target env  
   [MANDATORY] -c | --call     --> target endpoint. it should follow the folder structure of the endpoint  
+  [OPTIONAL]  -a | --args     --> arguments to replace the predefined request parameters
   [OPTIONAL]  -v | --verbose  --> bring more information about the request as well as all console.log in your custom scripts will be printed out  
   ```
 
@@ -102,36 +147,6 @@ $ zhc config --init
         - [FILE_NAME] "/this/endpoint/duplicate" | [FILE_NAME] "this/endpoint/duplicate"
       ```
 
-### Config Folder Structure
-The root configuration will be located on the user's home directory  
-> - .zhc
->   - config.jsonc
->   - profiles --> the collections is separated by profile
->     - default --> this is the default profile, if you don't pass '-p' option, then this profile will be selected
->       - env 
->         - default.jsonc 
->       - endpoints
->         - default.jsonc
->     - profile1 --> this is your custom profile. you have to pass '-p <YOUR_DESIRED_PROFILE>' when doing api call
->       - env 
->         - default.jsonc 
->       - endpoints
->         - default.jsonc
->         - otherEndpoint.jsonc
->         - someGroup1
->           - default.jsonc
->         - someGroup2
->           - subGroup
->             - default.jsonc
->   - scripts --> all your scripts should be located here
->     - your_custom_script_here.js
->     - your_custom_script_also_support_ruby.rb
->     - your_custom_script_also_support_go.go
->     - even_shell_script.sh
->     - of_course_python_script.py
->     - your_pre_script.js --> this is pre-request script (only 'js' for now)
->     - your_post_script.js --> this is post-request script (only 'js' for now)
-
 ### Content
 - config
   ```json
@@ -143,8 +158,10 @@ The root configuration will be located on the user's home directory
 - env
   ```json
   {
-    "baseURL": "https://google.com",
-    "tokenFromEnv": "some_token_from_env"
+    "protocol": "https",
+    "baseURL": "google.com",
+    "tokenFromEnv": "some_token_from_env",
+    "anyOtherVar": "bla bla"
   }
   ```
 - endpoint
