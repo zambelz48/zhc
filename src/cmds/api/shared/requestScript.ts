@@ -3,7 +3,8 @@ import fs from "node:fs"
 import path from "node:path"
 import { SCRIPTS_PATH } from "../../../utils/global"
 import { logWarning } from "../../../utils/logger"
-import { createFile } from "../../../utils/fileOperation"
+import { appendFile } from "../../../utils/fileOperation"
+import { parseContent } from "../../../utils/common"
 
 const builtInModules = (showLog: boolean = false) => {
   const defaultModules = {
@@ -21,12 +22,15 @@ const builtInModules = (showLog: boolean = false) => {
   return defaultModules
 }
 
-const loadScript = (type: "Pre" | "Post", scriptName: string) => {
+const loadScript = (
+  type: "Pre" | "Post",
+  scriptName: string
+): string | undefined => {
   const finalScriptName = `${scriptName}.js`
   const scriptLocation = path.join(SCRIPTS_PATH, finalScriptName)
   if (!fs.existsSync(scriptLocation)) {
     logWarning(`${type}-request script "${finalScriptName}.js" not found`)
-    return
+    return undefined
   }
 
   const script = fs.readFileSync(scriptLocation, "utf-8")
@@ -35,13 +39,47 @@ const loadScript = (type: "Pre" | "Post", scriptName: string) => {
 
 const updateEnv = (
   path: string,
-  data: Record<string, any>
+  unparsedData: { line: number, value: string }[],
+  parsedData: Record<string, any>
 ) => {
-  const updatedEnv = JSON.stringify(data, null, 2)
-  createFile({
-    path: path,
-    content: updatedEnv,
-    force: true
+  const totalLines = (unparsedData.length + Object.keys(parsedData).length)
+  if (totalLines === 0) {
+    logWarning("Failed to update env file")
+    return
+  }
+
+  const indexedParsedData = Object.entries(parsedData)
+  let nextParsedIndex = 0
+
+  const contents: string[] = ["{\n"]
+
+  for (let i = 1; i < totalLines; i++) {
+    const unparsedContent = unparsedData.find(line => line.line === i)
+    if (unparsedContent) {
+      let unparsedContentValue = unparsedContent.value
+      if (unparsedContentValue !== "\n") {
+        unparsedContentValue += "\n"
+      }
+      contents.push(unparsedContentValue)
+      continue
+    }
+
+    const [key, value] = indexedParsedData[nextParsedIndex]
+    let parsedContent = `\t"${key}": "${value}"`
+    if (i < totalLines - 1) {
+      parsedContent += ","
+    }
+    parsedContent += "\n"
+    contents.push(parsedContent)
+    nextParsedIndex++
+  }
+
+  contents.push("}")
+
+  appendFile({
+    path,
+    force: true,
+    contents
   })
 }
 
@@ -49,7 +87,7 @@ export const execPreRequestScript = async (
   scriptName: string,
   env: {
     path: string
-    data: Record<string, any>
+    content: string
   },
   showLog: boolean = false
 ) => {
@@ -59,21 +97,22 @@ export const execPreRequestScript = async (
     return
   }
 
-  const variables = env.data
+  const content = parseContent(env.content)
+  const variables = content.parsed
 
   vm.runInNewContext(
     script,
     { variables, ...builtInModules(showLog) }
   )
 
-  updateEnv(env.path, variables)
+  updateEnv(env.path, content.unparseable, variables)
 }
 
 export const execPostRequestScript = async (
   scriptName: string,
   env: {
     path: string
-    data: Record<string, any>
+    content: string
   },
   response: Record<string, any>,
   showLog: boolean = false
@@ -84,12 +123,13 @@ export const execPostRequestScript = async (
     return
   }
 
-  const variables = env.data
+  const content = parseContent(env.content)
+  const variables = content.parsed
 
   vm.runInNewContext(
     script,
     { variables, response, ...builtInModules(showLog)}
   )
 
-  updateEnv(env.path, variables)
+  updateEnv(env.path, content.unparseable, variables)
 }

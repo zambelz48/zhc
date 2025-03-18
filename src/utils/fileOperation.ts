@@ -11,6 +11,10 @@ interface CreateFileOptions extends CreateOptions {
   content?: string
 }
 
+interface AppendFileOptions extends CreateFileOptions {
+  contents: string[]
+}
+
 export const createDirectory = ({
   path,
   force = false,
@@ -45,6 +49,28 @@ export const createFile = ({
   }
 
   fs.writeFileSync(path, content)
+
+  if (!fs.existsSync(path)) {
+    throw new Error(`Failed to create "${path}"`)
+  }
+}
+
+export const appendFile = ({
+  path,
+  force = false,
+  contents = []
+}: AppendFileOptions) => {
+  if (force && fs.existsSync(path)) {
+    fs.rmSync(path, { recursive: true })
+  }
+
+  if (!fs.existsSync(path)) {
+    fs.writeFileSync(path, "")
+  }
+
+  for (const content of contents) {
+    fs.appendFileSync(path, content)
+  }
 
   if (!fs.existsSync(path)) {
     throw new Error(`Failed to create "${path}"`)

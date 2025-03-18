@@ -4,7 +4,7 @@ import chalk from "chalk"
 import { getConfigData } from "../../../utils/config"
 import { PROFILES_PATH } from "../../../utils/global"
 import { logError } from "../../../utils/logger"
-import { formatContent, spacer } from "../../../utils/common"
+import { parseContent, spacer } from "../../../utils/common"
 import { HTTPMethod } from "./restHttpMethod"
 import { isDirectory } from "../../../utils/fileOperation"
 
@@ -51,7 +51,7 @@ const restApiInfo = (filePath: string, tabCount: number = 0) => {
       const formattedFileName = chalk.yellow.bold(file.replace(".jsonc", ""))
       console.log(`${space}\u2022 ${formattedFileName}:`)
 
-      const parsedContent = JSON.parse(formatContent(endpointContent))
+      const parsedContent = parseContent(endpointContent).parsed
       const apiList = Object.entries(parsedContent)
 
       for (const [key, value] of apiList) {

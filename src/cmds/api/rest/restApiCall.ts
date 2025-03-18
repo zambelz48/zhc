@@ -1,7 +1,7 @@
 import path from "node:path"
 import fs from "node:fs"
 import { PROFILES_PATH } from "../../../utils/global"
-import { formatContent } from "../../../utils/common"
+import { parseContent } from "../../../utils/common"
 import { getConfigData } from "../../../utils/config"
 import { logError, logInfo } from "../../../utils/logger"
 import runCustomScript from "../shared/scriptExecutor"
@@ -14,7 +14,7 @@ import {
 const getEnvData = (
   profile?: string,
   env?: string
-): { path: string, data: Record<string, any> } | undefined => {
+): { path: string, content: string } | undefined => {
   try {
     const configData = getConfigData()
 
@@ -22,16 +22,14 @@ const getEnvData = (
     const envDirPath = path.join(PROFILES_PATH, targetProfile, "env")
     const targetEnv = `${env || "default"}.jsonc`
     const envFilePath = path.join(envDirPath, targetEnv)
-
     const envContent = fs.readFileSync(envFilePath, "utf-8")
-    const parsedContent = JSON.parse(formatContent(envContent))
 
     return {
       path: envFilePath,
-      data: parsedContent
+      content: envContent,
     }
   } catch (err) {
-    return undefined
+    throw new Error(`Failed to get env data: ${err}`)
   }
 }
 
@@ -58,9 +56,8 @@ const getEndpointData = (
     )
 
     const endpointContent = fs.readFileSync(endpointFilePath, "utf-8")
-    const parsedContent = JSON.parse(formatContent(endpointContent))
-
-    const data = Object.entries(parsedContent)
+    const content = parseContent(endpointContent)
+    const data = Object.entries(content.parsed)
       .filter(([key]) => key === targetEndpointName)[0]
 
     return {
@@ -260,7 +257,8 @@ const httpRequest = async (opt: Record<string, string | boolean>) => {
       return
     }
 
-    const envData = env.data
+    const envContent = parseContent(env.content)
+    const envData = envContent.parsed
     const protocol = envData.protocol as string
     const baseURL = envData.baseURL as string
     if (!protocol || !baseURL) {
