@@ -66,7 +66,7 @@ const updateEnv = (
 
     const [key, value] = indexedParsedData[nextParsedIndex]
     let parsedContent = `\t"${key}": "${value}"`
-    if (i < totalLines - 1) {
+    if (nextParsedIndex < indexedParsedData.length - 1) {
       parsedContent += ","
     }
     parsedContent += "\n"
@@ -74,7 +74,7 @@ const updateEnv = (
     nextParsedIndex++
   }
 
-  contents.push("}")
+  contents.push("\n}")
 
   appendFile({
     path,
