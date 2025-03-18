@@ -228,6 +228,11 @@ const constructResponse = async (
     responseHeaders[key] = value
   }
 
+  const contentType = responseHeaders["content-type"]
+  if (contentType.includes("text/html")) {
+    return await response.text()
+  }
+
   const result: Record<string, unknown> = {}
 
   if (response.status > 499) {
@@ -301,6 +306,9 @@ const httpRequest = async (opt: Record<string, string | boolean>) => {
     )
 
     const httpResponse = await constructResponse(method, response)
+    if (typeof httpResponse === "string") {
+      return httpResponse
+    }
 
     const postRequestScript = endpointData.scripts?.post as string
     if (postRequestScript) {

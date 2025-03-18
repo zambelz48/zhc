@@ -65,7 +65,20 @@ const updateEnv = (
     }
 
     const [key, value] = indexedParsedData[nextParsedIndex]
-    let parsedContent = `\t"${key}": "${value}"`
+    let parsedValue: unknown = undefined
+    if (typeof value === "string") {
+      parsedValue = `"${value}"`
+    }
+    if (typeof value === "boolean" || typeof value === "number") {
+      parsedValue = value
+    }
+
+    if (!parsedValue) {
+      logWarning(`Failed to update env file`)
+      return
+    }
+
+    let parsedContent = `\t"${key}": ${parsedValue}`
     if (nextParsedIndex < indexedParsedData.length - 1) {
       parsedContent += ","
     }
