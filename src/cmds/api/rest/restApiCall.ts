@@ -280,8 +280,9 @@ const httpRequest = async (opt: Record<string, string | boolean>) => {
 
     const endpointData = endpoint.data
     const preRequestScript = endpointData.scripts?.pre as string
+    let updatedEnv: Record<string, any> = envData
     if (preRequestScript) {
-      await execPreRequestScript(preRequestScript, env, verbose)
+      updatedEnv = execPreRequestScript(preRequestScript, env, verbose)
     }
 
     const additionalArgs = opt?.args as string
@@ -312,9 +313,13 @@ const httpRequest = async (opt: Record<string, string | boolean>) => {
 
     const postRequestScript = endpointData.scripts?.post as string
     if (postRequestScript) {
-      await execPostRequestScript(
+      execPostRequestScript(
         postRequestScript,
-        env,
+        {
+          path: env.path,
+          unparseable: envContent.unparseable,
+          parsed: updatedEnv
+        },
         httpResponse,
         verbose
       )

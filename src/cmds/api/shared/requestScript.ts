@@ -96,22 +96,22 @@ const updateEnv = (
   })
 }
 
-export const execPreRequestScript = async (
+export const execPreRequestScript = (
   scriptName: string,
   env: {
     path: string
     content: string
   },
   showLog: boolean = false
-) => {
+): Record<string, any> => {
+  const content = parseContent(env.content)
+  const variables = content.parsed
+
   const script = loadScript("Pre", scriptName)
   if (!script) {
     logWarning("Failed to load Pre-request script content")
-    return
+    return variables
   }
-
-  const content = parseContent(env.content)
-  const variables = content.parsed
 
   vm.runInNewContext(
     script,
@@ -119,30 +119,34 @@ export const execPreRequestScript = async (
   )
 
   updateEnv(env.path, content.unparseable, variables)
+
+  return variables
 }
 
-export const execPostRequestScript = async (
+export const execPostRequestScript = (
   scriptName: string,
   env: {
-    path: string
-    content: string
+    path: string,
+    unparseable: { line: number, value: string }[],
+    parsed: Record<string, any>,
   },
   response: Record<string, any>,
   showLog: boolean = false
-) => {
+): Record<string, any> => {
   const script = loadScript("Post", scriptName)
   if (!script) {
     logWarning("Failed to load Post-request script content")
-    return
+    return env.parsed
   }
 
-  const content = parseContent(env.content)
-  const variables = content.parsed
+  const variables = env.parsed
 
   vm.runInNewContext(
     script,
     { variables, response, ...builtInModules(showLog)}
   )
 
-  updateEnv(env.path, content.unparseable, variables)
+  updateEnv(env.path, env.unparseable, variables)
+
+  return variables
 }
