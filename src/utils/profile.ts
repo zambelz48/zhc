@@ -23,7 +23,7 @@ const createProfile = (name: string): string | never => {
     path: path.join(envPath, "default.jsonc"),
     content: JSON.stringify({
       "protocol": "https",
-      "baseURL": "your-base-url"
+      "baseURL": "dummyjson.com"
     }, null, 2)
   })
 
@@ -32,16 +32,23 @@ const createProfile = (name: string): string | never => {
   createFile({
     path: path.join(endpointsPath, "default.jsonc"),
     content: JSON.stringify({
-      "SampleEndpoint": {
+      "sample_get_all": {
         "path": "/posts",
         "method": "GET",
         "headers": {
           "Content-Type": "application/json"
         },
-        "params": {
-          "id": "1"
-        }
+        "params": {}
+      },
+      "sample_get_single": {
+        "path": "/posts/1",
+        "method": "GET",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "params": {}
       }
+
     }, null, 2)
   })
 

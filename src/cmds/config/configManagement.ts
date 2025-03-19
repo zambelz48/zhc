@@ -19,6 +19,22 @@ const initConfig = () => {
       }, null, 2)
     })
 
+    createFile({
+      path: path.join(ROOT_PATH, ".editorconfig"),
+      content: `# Editor configuration, see http://editorconfig.org
+root = false
+
+[*]
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.jsonc]
+indent_style = space
+indent_size = 2
+`
+    })
+
     createDirectory({ path: path.join(ROOT_PATH, "scripts") })
 
     try {
