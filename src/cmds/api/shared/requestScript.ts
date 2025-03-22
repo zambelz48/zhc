@@ -87,7 +87,12 @@ const updateEnv = (
     nextParsedIndex++
   }
 
-  contents.push("\n}")
+  const lastContent = contents[contents.length - 1].replaceAll(" ", "")
+  if (lastContent !== "\n") {
+    contents.push("\n")
+  }
+
+  contents.push("}")
 
   appendFile({
     path,

@@ -6,7 +6,26 @@ export const spacer = (length: number = 1) => {
 export const parseContent = (content: string): {
   unparseable: {line: number, value: string}[],
   parsed: Record<string, any>
-}=> {
+} => {
+  const removeTrailingComma = (parseableContent: string): string => {
+    const contents = parseableContent.split("")
+
+    let targetIndex = contents.length - 1
+    while (
+      parseableContent[targetIndex] === "}"
+        || parseableContent[targetIndex] === "\n") {
+      targetIndex--
+    }
+
+    if (targetIndex > 0 && parseableContent[targetIndex] === ",") {
+      return contents
+        .filter((_, index) => index !== targetIndex)
+        .join("")
+    }
+
+    return parseableContent
+  }
+
   try {
     const splitedContent = content.split("\n")
     const unparseableContent: { line: number, value: string }[] = []
@@ -26,6 +45,8 @@ export const parseContent = (content: string): {
       }
       parseableContent += line
     }
+
+    parseableContent = removeTrailingComma(parseableContent)
 
     return {
       unparseable: unparseableContent,
