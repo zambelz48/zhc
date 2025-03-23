@@ -161,6 +161,35 @@ const assignValueFromScript = (target: Record<string, any>) => {
   return result
 }
 
+const assignEndpointVariables = (
+  src: Record<string, unknown>,
+  endpoint: string
+) => {
+
+  const endpointVariables = endpoint.match(/\{\{(.+?)\}\}/g)
+
+  if (!endpointVariables) {
+    return endpoint
+  }
+
+  let result = endpoint
+
+  for (const variable of endpointVariables) {
+    const variableName = variable.slice(2, variable.length - 2)
+    const variableValue = src[variableName]
+    if (!variableValue) {
+      continue
+    }
+
+    const formattedVariable = `${variableValue}`.trim().replace(/\s+/g, " ")
+    const finalVariable = formattedVariable.replaceAll(/\s/g, "%20")
+
+    result = result.replace(variable, finalVariable)
+  }
+
+  return result
+}
+
 const configureRequest = (
   envData: Record<string, any> | undefined,
   endpointData: Record<string, any> | undefined,
@@ -175,7 +204,8 @@ const configureRequest = (
     return { method: "GET", finalURL: "", requestData: {} }
   }
 
-  const fullURL = `${envData.protocol}://${envData.baseURL}${endpointData["path"]}`
+  const endpointPath = assignEndpointVariables(envData, endpointData["path"])
+  const fullURL = `${envData.protocol}://${envData.baseURL}${endpointPath}`
   const method: HTTPMethod = endpointData["method"]
   const headers: Record<string, string> = assignValueFromScript(
     assignValueFromArgs(
