@@ -243,6 +243,10 @@ const configureRequest = (
       }
       break
     case "DELETE":
+      requestData = {
+        method,
+        headers
+      }
       break
   }
 
