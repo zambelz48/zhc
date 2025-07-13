@@ -1,3 +1,8 @@
 node_modules
 dist
 
+# OpenCode
+.opencode
+.opencode.json
+OpenCode.md
+
