@@ -36,6 +36,9 @@
     "reinstall": "pnpm build && npm uninstall -g zhc && npm install -g"
   },
   "packageManager": "pnpm@10.13.1",
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "chalk": "4.1.2"
   },
