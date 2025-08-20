@@ -1,11 +1,12 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
     "strict": true,
-    "target": "es2020",
+    "target": "esnext",
     "module": "commonjs",
-    "lib": ["es2020"],
+    "lib": ["ESNext"],
     "sourceMap": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
