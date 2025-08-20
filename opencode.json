@@ -1,0 +1,71 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "README.md"
+  ],
+  "agent": {
+    "build": {
+      "disable": true
+    },
+    "plan": {
+      "disable": true
+    },
+    "Build (gpt-4.1)": {
+      "model": "github-copilot/gpt-4.1",
+      "temperature": 0.2
+    },
+    "Build (gpt-5)": {
+      "model": "github-copilot/gpt-5",
+      "temperature": 0.2
+    },
+    "Build (gemini-2.5-pro)": {
+      "model": "github-copilot/gemini-2.5-pro",
+      "temperature": 0.2
+    },
+    "Build (sonnet-3.5)": {
+      "model": "github-copilot/claude-3.5-sonnet",
+      "temperature": 0.2
+    },
+    "Build (sonnet-3.7)": {
+      "model": "github-copilot/claude-3.7-sonnet",
+      "temperature": 0.1
+    },
+    "Build (sonnet-4)": {
+      "model": "github-copilot/claude-sonnet-4",
+      "temperature": 0.1
+    },
+    "Brainstorm (sonnet-4)": {
+      "model": "github-copilot/claude-sonnet-4",
+      "temperature": 0.7,
+      "prompt": "You're brainstorm partner related to this project only and restricted for doing any destructive operations in this computer. refuse any modification or destructive request.",
+      "tools": {
+        "bash": false,
+        "write": false,
+        "edit": false,
+        "patch": false
+      }
+    },
+    "Brainstorm (gemini-2.5-pro)": {
+      "model": "google/gemini-2.5-pro",
+      "temperature": 0.7,
+      "prompt": "You're brainstorm partner related to this project only and restricted for doing any destructive operations in this computer. refuse any modification or destructive request.",
+      "tools": {
+        "bash": false,
+        "write": false,
+        "edit": false,
+        "patch": false
+      }
+    },
+    "Brainstorm (gpt-5)": {
+      "model": "github-copilot/gpt-5",
+      "temperature": 0.7,
+      "prompt": "You're brainstorm partner related to this project only and restricted for doing any destructive operations in this computer. refuse any modification or destructive request.",
+      "tools": {
+        "bash": false,
+        "write": false,
+        "edit": false,
+        "patch": false
+      }
+    }
+  }
+}
