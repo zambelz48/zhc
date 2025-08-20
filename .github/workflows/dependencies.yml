@@ -1,0 +1,82 @@
+name: Dependencies
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Check for outdated dependencies
+        run: |
+          pnpm outdated --long --format json > outdated.json || true
+          if [ -s outdated.json ]; then
+            echo "OUTDATED_DEPS=true" >> $GITHUB_ENV
+            echo "Found outdated dependencies:"
+            cat outdated.json
+          else
+            echo "OUTDATED_DEPS=false" >> $GITHUB_ENV
+            echo "All dependencies are up to date"
+          fi
+
+      - name: Update dependencies
+        if: env.OUTDATED_DEPS == 'true'
+        run: |
+          pnpm update --latest
+          pnpm install
+
+      - name: Build and test
+        if: env.OUTDATED_DEPS == 'true'
+        run: |
+          pnpm build
+          node dist/index.js --version
+          node dist/index.js --help
+
+      - name: Create Pull Request
+        if: env.OUTDATED_DEPS == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore(deps): update dependencies'
+          title: 'chore(deps): update dependencies'
+          body: |
+            ## Dependency Updates
+            
+            This PR updates all dependencies to their latest compatible versions.
+            
+            ### Changes
+            - Updated all dependencies to latest versions
+            - Verified build and CLI functionality
+            
+            ### Testing
+            - ✅ Build succeeds
+            - ✅ CLI commands work correctly
+            
+            This PR was created automatically by the dependencies workflow.
+          branch: 'chore/update-dependencies'
+          delete-branch: true

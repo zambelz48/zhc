@@ -27,6 +27,12 @@
     "start": "ts-node ./src/index.ts",
     "build": "tsdown",
     "build:watch": "tsdown --watch",
+    "changelog": "./scripts/changelog.sh",
+    "tag": "./scripts/tag.sh",
+    "release:patch": "pnpm version patch --no-git-tag-version && git add package.json && git commit -m \"chore: bump version to $(node -p 'require(\"./package.json\").version')\" && git push origin main",
+    "release:minor": "pnpm version minor --no-git-tag-version && git add package.json && git commit -m \"chore: bump version to $(node -p 'require(\"./package.json\").version')\" && git push origin main",
+    "release:major": "pnpm version major --no-git-tag-version && git add package.json && git commit -m \"chore: bump version to $(node -p 'require(\"./package.json\").version')\" && git push origin main",
+    "release:push": "pnpm tag && git push origin $(node -p \"require('./package.json').version\")",
     "reinstall": "pnpm build && npm uninstall -g zhc && npm install -g"
   },
   "packageManager": "pnpm@10.13.1",

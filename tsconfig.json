@@ -3,10 +3,16 @@
     "rootDir": "src",
     "outDir": "dist",
     "strict": true,
-    "target": "esnext",
+    "target": "es2020",
     "module": "commonjs",
+    "lib": ["es2020"],
     "sourceMap": true,
     "esModuleInterop": true,
-    "moduleResolution": "node"
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": false,
+    "types": ["node"]
   }
 }
