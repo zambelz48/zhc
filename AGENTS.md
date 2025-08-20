@@ -1,7 +1,8 @@
 # ZHC Agents Guide
 
 ## Build/Test Commands
-- `pnpm build` - Compile TypeScript to dist/
+- `pnpm build` - Build with tsdown (Rust-powered bundler)
+- `pnpm build:watch` - Build in watch mode for development
 - `pnpm start` - Run development server with ts-node
 - No test framework configured
 - `pnpm reinstall` - Build and reinstall globally
@@ -23,3 +24,4 @@
 - Commands in `src/cmds/` with barrel exports
 - Utilities in `src/utils/`
 - Use chalk for colored console output
+- Built with tsdown (configured in tsdown.config.ts)
