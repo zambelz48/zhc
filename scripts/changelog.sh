@@ -9,13 +9,14 @@ OUTPUT_FILE=${1:-"release_notes.md"}
 
 # Function to get the latest tag
 get_latest_tag() {
-    local current_tag=${1:-""}
-
-    if [ -n "$current_tag" ]; then
-        # If current tag is provided, get the tag before it
-        git tag --sort=-version:refname | grep -v "^${current_tag}$" | head -n 1
+    # Get version from package.json
+    local current_version=$(node -p "require('./package.json').version" 2>/dev/null || echo "")
+    
+    if [ -n "$current_version" ]; then
+        # Get the tag before the current version
+        git tag --sort=-version:refname | grep -v "^${current_version}$" | head -n 1
     else
-        # Get the latest tag
+        # Fallback: get the latest tag
         git tag --sort=-version:refname | head -n 1
     fi
 }
