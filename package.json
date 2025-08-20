@@ -25,16 +25,18 @@
   },
   "scripts": {
     "start": "ts-node ./src/index.ts",
-    "build": "tsc",
+    "build": "tsdown",
+    "build:watch": "tsdown --watch",
     "reinstall": "pnpm build && npm uninstall -g zhc && npm install -g"
   },
-  "packageManager": "pnpm@9.7.1",
+  "packageManager": "pnpm@10.13.1",
   "dependencies": {
     "chalk": "4.1.2"
   },
   "devDependencies": {
     "@types/node": "^22.5.5",
     "ts-node": "^10.9.2",
+    "tsdown": "^0.14.1",
     "typescript": "^5.6.2"
   }
 }
