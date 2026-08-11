@@ -1,6 +1,8 @@
+
+
 # ZHC - Api Management Tools
 [![NPM Version](https://img.shields.io/npm/v/%40zambelz%2Fzhc)](https://www.npmjs.com/package/@zambelz/zhc)
-[![NPM License](https://img.shields.io/npm/l/all-contributors.svg?style=flat)](https://github.com/zambelz/zhc/blob/master/LICENSE)
+[![NPM License](https://img.shields.io/npm/l/all-contributors.svg?style=flat)](https://github.com/zambelz48/zhc/blob/main/LICENSE)
 
 ## Installations
 ```sh
